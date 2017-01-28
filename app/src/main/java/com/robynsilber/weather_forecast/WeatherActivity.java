@@ -1,16 +1,23 @@
 package com.robynsilber.weather_forecast;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import static com.robynsilber.weather_forecast.R.id.latitude;
+import static com.robynsilber.weather_forecast.R.id.longitude;
+import static com.robynsilber.weather_forecast.R.id.progressBar;
+
+
 
 /*
 *   User clicks on launcher icon to run this app on her device.
@@ -41,25 +48,9 @@ public class WeatherActivity extends AppCompatActivity {
     private LocationDetector.LocationBinder mLocationBinder;
     private LocationDetector mLocationDetector;
     private boolean isBoundToService = false;
+    private static Location mLocation;
 
     private static long TIMEOUT_IN_MILLI = 10000;
-
-
-    private class LocationReceiver extends BroadcastReceiver{
-        @Override
-        public void onReceive(Context context, Intent intent){
-
-            double[] coords = intent.getDoubleArrayExtra("locationCoords");
-            if(coords[0] == 0.0 && coords[1] == 0.0){ // failed to get lat and long
-
-            }else{ // success
-                // TODO: pass Location data to WeatherData
-            }
-        }
-    }
-
-
-
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -81,10 +72,7 @@ public class WeatherActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
 
-        LocationReceiver receiver = new LocationReceiver();
-        IntentFilter filter = new IntentFilter("some_filter");
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
-//        registerReceiver(receiver, filter); // register the receiver
+        getTheLocation();
 
     }
 
@@ -94,16 +82,8 @@ public class WeatherActivity extends AppCompatActivity {
         // Bind the service at onStart()
         Intent intent = new Intent(this, LocationDetector.class);
         bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE); // uses the intent and service connection to bind activity to the service
-//        mLocationDetector.getLocationFromDetector();
+//        getTheLocation();
     }
-
-    @Override
-    protected void onResume(){
-        mLocationDetector.getLocationFromDetector();
-    }
-
-
-
 
 
     // saves the state of WeatherActivity prior to being destroyed
@@ -132,6 +112,10 @@ public class WeatherActivity extends AppCompatActivity {
 
     private void getTheLocation(){
 
+        final TextView latitudeView = (TextView)findViewById(latitude);
+        final TextView longitudeView = (TextView)findViewById(longitude);
+        final ProgressBar progBarView = (ProgressBar)findViewById(progressBar);
+        progBarView.setIndeterminate(true);
 
         final Handler handler = new Handler();
         handler.post(new Runnable() {
@@ -141,13 +125,20 @@ public class WeatherActivity extends AppCompatActivity {
                 double latitude = 0.0;
                 double longitude = 0.0;
                 if(mLocationDetector != null){
-//                    Location location =
-                    mLocationDetector.getLocationFromDetector();
-//                    if(location != null){
-//                        latitude = location.getLatitude();
-//                        longitude = location.getLongitude();
-//                    }
+                    mLocation = mLocationDetector.getLocationFromDetector();
+
+                    if(mLocation != null){
+                        latitude = mLocation.getLatitude();
+                        longitude = mLocation.getLongitude();
+//                        progBarView.setIndeterminate(false);
+                        progBarView.setVisibility(View.INVISIBLE);
+                        latitudeView.setText(Double.toString(latitude));
+                        latitudeView.setVisibility(View.VISIBLE);
+                        longitudeView.setText(Double.toString(longitude));
+                        longitudeView.setVisibility(View.VISIBLE);
+                    }
                 }
+
                 handler.postDelayed(this, TIMEOUT_IN_MILLI); // update the location every 10 seconds
             }
         });

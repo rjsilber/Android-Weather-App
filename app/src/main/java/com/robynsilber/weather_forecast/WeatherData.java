@@ -1,6 +1,5 @@
 package com.robynsilber.weather_forecast;
 
-import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.text.format.Time;
@@ -23,26 +22,33 @@ public class WeatherData {
 
     private ArrayAdapter<String> mWeatherDataAdapter;
 
-    public WeatherData(Location location){
+    public WeatherData(double latitude, double longitude){
 
-        RetrieveWeatherTask retrieveWeatherTask = new RetrieveWeatherTask();
+        WeatherDataAsyncTask weatherDataAsyncTask = new WeatherDataAsyncTask();
 
+    }
+
+    // takes care of executing the AsyncTask
+    private void updateWeather(){
+        WeatherDataAsyncTask weatherDataAsyncTaskTask = new WeatherDataAsyncTask(); // creates new AsyncTask
+
+        // TODO: read from shared preferences to get the default or saved settings
 
     }
 
 
 
-    public class RetrieveWeatherTask extends AsyncTask<String, Void, String[]>{
+    public class WeatherDataAsyncTask extends AsyncTask<String, Void, String[]>{
         /**
-         * RetrieveWeatherTask defines a class that extends AsyncTask for
+         * WeatherDataAsyncTask defines a class that extends AsyncTask for
          * downloading Weather data on a background thread.
          */
 
 
         // Tag for error logging in logcat
-        private final String LOG_TAG = RetrieveWeatherTask.class.getSimpleName();
+        private final String LOG_TAG = WeatherDataAsyncTask.class.getSimpleName();
 
-        // The following method is must be implemented as RetrieveWeatherTask is a subclass of AsyncTask
+        // The following method is must be implemented as WeatherDataAsyncTask is a subclass of AsyncTask
         @Override
         protected String[] doInBackground(String... params) {
 
