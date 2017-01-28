@@ -50,7 +50,7 @@ public class WeatherActivity extends AppCompatActivity {
     private boolean isBoundToService = false;
     private static Location mLocation;
 
-    private static long TIMEOUT_IN_MILLI = 10000;
+    private static long TIMEOUT_IN_MILLI = 10000; // 10 seconds
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -75,6 +75,8 @@ public class WeatherActivity extends AppCompatActivity {
         getTheLocation();
 
     }
+
+
 
     @Override
     protected void onStart(){
@@ -115,7 +117,6 @@ public class WeatherActivity extends AppCompatActivity {
         final TextView latitudeView = (TextView)findViewById(latitude);
         final TextView longitudeView = (TextView)findViewById(longitude);
         final ProgressBar progBarView = (ProgressBar)findViewById(progressBar);
-        progBarView.setIndeterminate(true);
 
         final Handler handler = new Handler();
         handler.post(new Runnable() {
@@ -136,6 +137,8 @@ public class WeatherActivity extends AppCompatActivity {
                         latitudeView.setVisibility(View.VISIBLE);
                         longitudeView.setText(Double.toString(longitude));
                         longitudeView.setVisibility(View.VISIBLE);
+
+                        handler.removeCallbacks(this); // TODO: if crash, remove this line
                     }
                 }
 

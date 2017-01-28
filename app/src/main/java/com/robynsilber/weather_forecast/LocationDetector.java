@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 
 public class LocationDetector extends Service {
     // use mIBinder to bind WeatherActivity to LocationDetector Service
@@ -85,7 +84,7 @@ public class LocationDetector extends Service {
                         || ActivityCompat.checkSelfPermission(LocationDetector.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
                     mLocationManager.removeUpdates(mLocationListener); // stop location service from sending updates to the listener
                     if(!wasOnLocationChangedCalled){ // LocationManager failed to get the location before timeout
-                        Log.d("getLastKnownLocation", "getLastKnownLocation");
+//                        Log.d("getLastKnownLocation", "getLastKnownLocation");
                         mLocation = mLocationManager.getLastKnownLocation(mLocationProvider.getName());
                     }
                 }
