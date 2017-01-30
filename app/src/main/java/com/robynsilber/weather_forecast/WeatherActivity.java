@@ -10,18 +10,29 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import static com.robynsilber.weather_forecast.R.id.latitude;
-import static com.robynsilber.weather_forecast.R.id.longitude;
+import static com.robynsilber.weather_forecast.R.id.list_item_weather_text_view;
+import static com.robynsilber.weather_forecast.R.id.listview_weather_data;
 import static com.robynsilber.weather_forecast.R.id.progressBar;
 
+/*  Command line recipe for Git:
+*
+*          git status
+*          git add .
+*          git commit -a -m 'message'
+*          git push
+*
+* */
 
 
-/*
+
+/*        Activity Lifecycle: DEVICE CONFIGURATION CHANGES (USER ROTATES DEVICE):
+*
 *   User clicks on launcher icon to run this app on her device.
-*   AndroidManifest.xml specifies which Activity in the app to launch; an intent is constructed to start thr activity with startActivity(intent)
+*   AndroidManifest.xml specifies which Activity in the app to launch; an intent is constructed to start the activity with startActivity(intent)
 *   Android checks if there's already a process in which to run the app in, and if not, it creates a new process.
 *   Android creates a new activity object for the activity specified as the launcher activity in the manifest.
 *   Activity is in the LAUNCHED state.
@@ -114,9 +125,11 @@ public class WeatherActivity extends AppCompatActivity {
 
     private void getTheLocation(){
 
-        final TextView latitudeView = (TextView)findViewById(latitude);
-        final TextView longitudeView = (TextView)findViewById(longitude);
+//        final TextView latitudeView = (TextView)findViewById(latitude);
+//        final TextView longitudeView = (TextView)findViewById(longitude);
         final ProgressBar progBarView = (ProgressBar)findViewById(progressBar);
+        final ListView listView = (ListView)findViewById(listview_weather_data);
+        final TextView textView = (TextView)findViewById(list_item_weather_text_view);
 
         final Handler handler = new Handler();
         handler.post(new Runnable() {
@@ -132,13 +145,18 @@ public class WeatherActivity extends AppCompatActivity {
                         latitude = mLocation.getLatitude();
                         longitude = mLocation.getLongitude();
 //                        progBarView.setIndeterminate(false);
-                        progBarView.setVisibility(View.INVISIBLE);
-                        latitudeView.setText(Double.toString(latitude));
-                        latitudeView.setVisibility(View.VISIBLE);
-                        longitudeView.setText(Double.toString(longitude));
-                        longitudeView.setVisibility(View.VISIBLE);
 
-                        handler.removeCallbacks(this); // TODO: if crash, remove this line
+//                        latitudeView.setText(Double.toString(latitude));
+//                        latitudeView.setVisibility(View.VISIBLE);
+//                        longitudeView.setText(Double.toString(longitude));
+//                        longitudeView.setVisibility(View.VISIBLE);
+                        WeatherData weatherData = new WeatherData(WeatherActivity.this, latitude, longitude); // call to populate the Adapter with weather data
+                        progBarView.setVisibility(View.INVISIBLE);
+                        listView.setAdapter(weatherData.getMWeatherDataAdapter());
+                        listView.setVisibility(View.VISIBLE);
+                        textView.setVisibility(View.VISIBLE);
+
+                        handler.removeCallbacks(this);
                     }
                 }
 

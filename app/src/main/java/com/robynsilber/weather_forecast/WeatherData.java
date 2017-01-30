@@ -2,6 +2,7 @@ package com.robynsilber.weather_forecast;
 
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v7.app.AppCompatActivity;
 import android.text.format.Time;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -17,27 +18,56 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+
+
 
 public class WeatherData {
 
-    private ArrayAdapter<String> mWeatherDataAdapter;
+    private ArrayAdapter<String> mWeatherDataAdapter; // model object containing weather data
 
-    public WeatherData(double latitude, double longitude){
+    public WeatherData(AppCompatActivity context, double latitude, double longitude){
+        mWeatherDataAdapter = new ArrayAdapter<String>(
+                context,
+                R.layout.activity_weather, // layout
+                R.id.list_item_weather_text_view, //textview
+                new ArrayList<String>()
+        );
 
-        WeatherDataAsyncTask weatherDataAsyncTask = new WeatherDataAsyncTask();
+        updateWeather(latitude, longitude);
+//        WeatherDataAsyncTask weatherDataAsyncTask = new WeatherDataAsyncTask();
 
+
+    }
+
+    public ArrayAdapter<String> getMWeatherDataAdapter(){
+        return this.mWeatherDataAdapter;
     }
 
     // takes care of executing the AsyncTask
-    private void updateWeather(){
-        WeatherDataAsyncTask weatherDataAsyncTaskTask = new WeatherDataAsyncTask(); // creates new AsyncTask
+    private void updateWeather(double latitude, double longitude){
+        WeatherDataAsyncTask weatherDataAsyncTask = new WeatherDataAsyncTask(); // creates new AsyncTask
+        // Note: calling    AsyncTask.execute(Params... params);  returns itself (this) so that the caller
+        // here will have a reference to it.
+        String[] location = {Double.toString(latitude), Double.toString(longitude)};
+        weatherDataAsyncTask.execute(location);
+
 
         // TODO: read from shared preferences to get the default or saved settings
+        /*  Settings data:
+        *       - Number of days of weather to display (1-5)
+        *       - Fahr or Cels
+        *       - Location: lat/long coords      or     zip
+        *
+        * */
 
     }
 
 
-
+    // Notes (from Android API doc): an Asynchronous Task is a computation that executes on a
+    // background thread, and whose result is published on the UI thread. An asynchronous task is
+    // defined by 4 steps:  onPreExecute(), doInBackground(), onProgressUpdate(), and onPostExecute()
+    // and defined by 3 generic types:                 Params, Progress, Result
     public class WeatherDataAsyncTask extends AsyncTask<String, Void, String[]>{
         /**
          * WeatherDataAsyncTask defines a class that extends AsyncTask for
@@ -48,34 +78,49 @@ public class WeatherData {
         // Tag for error logging in logcat
         private final String LOG_TAG = WeatherDataAsyncTask.class.getSimpleName();
 
-        // The following method is must be implemented as WeatherDataAsyncTask is a subclass of AsyncTask
+        // The following method must be implemented bc WeatherDataAsyncTask is a subclass of AsyncTask
         @Override
         protected String[] doInBackground(String... params) {
+
+
+            // TWO SCENARIOS: String param is empty or not empty.
+            // Ensure that it is not empty, and if so, return (i.e., no location)
+
+            // Initially uses zip code for location
+
+            if(params.length == 1){ // zip code at params[0]
+
+            }else if(params.length == 2){ // lat at params[0] and lon at params[1]
+
+            }else{ // checks if params is empty
+                return null; // no zip code, no lat/lon; no location ==> no data to retrieve; return null
+            }
+
+
+            int queryType = 0;
 
             // QUERY PARAMS - define as constants
             // Separately define query params for better maintainability, flexibility, and readability of the code,
             // these params may need to be updated in the event that the OWM API changes in the future:
 
             // BASE_URL for lat, lon query:
-            // http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}
+            // http://api.openweathermap.org/data/2.5/forecast/daily?lat={lat}&lon={lon}
 
             // BASE_URL for zip code query:
-            // http://api.openweathermap.org/data/2.5/forecast?id={city ID}
+            // http://api.openweathermap.org/data/2.5/forecast/daily?id={city ID}
 
             final String BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
-            final String QUERY_PARAM = "q";
-            final String FORMAT_PARAM = "mode";
-            final String UNITS_PARAM = "units";
-            final String COUNT_PARAM = "cnt"; // number of days param
-            final String APPID_PARAM = "APPID";
 
-            // TWO SCENARIOS: String param is empty or not empty.
-            // Ensure that it is not empty, and if so, return (i.e., no location)
 
-            // Initially uses zip code for location
-            if(params.length == 0){ // checks if params is empty
-                return null; // no zip code, no location means no data to retrieve
-            }
+
+
+
+
+
+
+
+
+
 
             // Declare the String variable to store the JSON data retrieved from the query:
             String jsonData = null;
@@ -97,16 +142,52 @@ public class WeatherData {
             // To retrieve the weather in Celsius units, set units to "metric"
             int howManyDays = 5; // number of days to retrieve weather forecast data for
 
+
+            if(queryType == 0){
+
+            }else{ // queryType = 1
+
+            }
+
+
             try{
                 // Build URL for a query to OWM API by first appending a Uri with the PARAMS
+                final String QUERY_PARAM = "q";
+                final String FORMAT_PARAM = "mode";
+                final String UNITS_PARAM = "units";
+                final String COUNT_PARAM = "cnt"; // number of days param
+                final String APPID_PARAM = "APPID";
+
+//
+//                     Uri uri = Uri
+//                        .parse(BASE_URL).buildUpon()
+//                        .appendQueryParameter(QUERY_PARAM, params[0]) // reads the 0th pos in the params array since we only passed in one string for the params array, the postal code
+//                        .appendQueryParameter(FORMAT_PARAM, format)
+//                        .appendQueryParameter(UNITS_PARAM, units)
+//                        .appendQueryParameter(COUNT_PARAM, Integer.toString(howManyDays)) // howManyDays is an int, to convert to string
+//                        .appendQueryParameter(APPID_PARAM, BuildConfig.OWM_API_KEY) // build config gets the API key String from gradle.properties
+//                        .build();
+
+
+                final String LAT_PARAM = "lat";
+                final String LON_PARAM = "lon";
+
                 Uri uri = Uri
                         .parse(BASE_URL).buildUpon()
-                        .appendQueryParameter(QUERY_PARAM, params[0]) // reads the 0th pos in the params array since we only passed in one string for the params array, the postal code
+                        .appendQueryParameter(LAT_PARAM, params[0])
+                        .appendQueryParameter(LON_PARAM, params[1])
                         .appendQueryParameter(FORMAT_PARAM, format)
                         .appendQueryParameter(UNITS_PARAM, units)
-                        .appendQueryParameter(COUNT_PARAM, Integer.toString(howManyDays)) // howManyDays is an int, to convert to string
-                        .appendQueryParameter(APPID_PARAM, BuildConfig.OWM_API_KEY) // build config gets the API key String from gradle.properties
+                        .appendQueryParameter(COUNT_PARAM, Integer.toString(howManyDays))
+                        .appendQueryParameter(APPID_PARAM, BuildConfig.OWM_API_KEY)
                         .build();
+
+
+
+                // example:    api.openweathermap.org/data/2.5/forecast/daily?q=20001&mode=json&units=imperial&cnt=7
+                // example:   api.openweathermap.org/data/2.5/forecast/daily?id=524901&cnt=7
+                // example:   api.openweathermap.org/data/2.5/forecast/daily?lat=35&lon=139&mode=json&units=imperial&cnt=10
+
 
                 // Declare the URL, using the uri String as arg
                 URL url = new URL(uri.toString()); // this line requires an IOException as the catch block param
@@ -203,7 +284,7 @@ public class WeatherData {
 
         // The following method runs on the main UI thread
         @Override
-        protected void onPostExecute(String[] data){
+        protected void onPostExecute(String[] data){ // data is the array (or null, if fail) returned from the doInBackground() callback
             // method receives String array of forecast data, which was the
             // value returned from the above doInBackground() method
 
