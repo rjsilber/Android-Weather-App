@@ -25,6 +25,15 @@
             android:enabled="true"
             android:exported="false">
         </service>
+
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".WeatherActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.robynsilber.weather_forecast.WeatherActivity"/>
+        </activity>
     </application>
 
 </manifest>

@@ -17,16 +17,30 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 
-// Notes (from Android API doc): an Asynchronous Task is a computation that executes on a
-// background thread, and whose result is published on the UI thread. An asynchronous task is
-// defined by 4 steps:  onPreExecute(), doInBackground(), onProgressUpdate(), and onPostExecute()
-// and defined by 3 generic types:                 Params, Progress, Result
+/**
+ * WeatherDataAsyncTask defines a class that extends AsyncTask.
+ * WeatherDataAsyncTask will be called from WeatherActivity after success/failure of the bound
+ * service class LocationDetector, which sets a Location object to a non-null value on success.
+ * Upon completion of the Runnable in the WeatherActivity, the retrieveWeatherData90 method gets
+ * called, which creates a new instance of WeatherDataAsyncTask. The .execute() method is called,
+ * which passes in double values for latitude and longitude.
+ *
+ * WeatherDataAsyncTask's purpose is for downloading Weather data on a background thread.
+ * doInBackground() callback must first check the value of params. If both latitude and longitude
+ * are not 0.0, use make the Http request with lat and lon. If both latitude and longitude
+ * have values 0.0, LocationDetector failed to retrieve the Location, in which case,
+ * doInBackground() can make the Http request using a zip code, provided the user has provided it.
+ *
+ *                                               < params, progress, result >                   */
 public class WeatherDataAsyncTask extends AsyncTask<String, Void, Weather[]>{
 
-    /**
-     * WeatherDataAsyncTask defines a class that extends AsyncTask for downloading Weather data on a background thread.
-     */
 
+
+
+    // Source for use of nested interface to allow WeatherActivity to listen for AsyncTask completion:
+/*  http://stackoverflow.com/questions/12575068/how-to-get-the-result-of-onpostexecute-to-main-activity-because-asynctask-is-a
+*   For me details, see answer by HelmiB, Sept 25, 2012
+* */
     public interface IAsyncTaskResponder {
         void asyncTaskFinished(Weather[] weatherForecast);
     }
@@ -37,28 +51,17 @@ public class WeatherDataAsyncTask extends AsyncTask<String, Void, Weather[]>{
         this.mIAsyncTaskListener = responder;
     }
 
-//    public Weather[] weatherForecast;
-
-
-
     // Tag for error logging in logcat
     private final String LOG_TAG = WeatherDataAsyncTask.class.getSimpleName();
 
     // The following method must be implemented bc WeatherDataAsyncTask is a subclass of AsyncTask
     @Override
     protected Weather[] doInBackground(String... params) {
+        // check params contain two values of type double
+        // if non-zero, run http request with lat and lon parameters
+        // if both zero, check if zip code is available
 
-
-        // TWO SCENARIOS: String param is empty or not empty.
-        // Ensure that it is not empty, and if so, return (i.e., no location)
-
-        // Initially uses zip code for location
-
-        if(params.length == 1){ // zip code at params[0]
-
-        }else if(params.length == 2){ // lat at params[0] and lon at params[1]
-
-        }else{ // checks if params is empty
+        if(params.length == 0){ // no value passed in
             Log.e(LOG_TAG, "params.lenth==0");
             return null; // no zip code, no lat/lon; no location ==> no data to retrieve; return null
         }
@@ -75,17 +78,6 @@ public class WeatherDataAsyncTask extends AsyncTask<String, Void, Weather[]>{
         // http://api.openweathermap.org/data/2.5/forecast/daily?id={city ID}
 
         final String BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
-
-
-
-
-
-
-
-
-
-
-
 
         // Declare the String variable to store the JSON data retrieved from the query:
         String jsonData = null;
@@ -251,8 +243,6 @@ public class WeatherDataAsyncTask extends AsyncTask<String, Void, Weather[]>{
 
         if(data != null){
             mIAsyncTaskListener.asyncTaskFinished(data);
-
-//            mIWeatherData.asyncTaskComplete(data);
         }
 
     }
@@ -306,12 +296,13 @@ public class WeatherDataAsyncTask extends AsyncTask<String, Void, Weather[]>{
             long date = dateObj.setJulianDay(dayOneForecast + i);
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE MMM dd");
             String formattedStr = simpleDateFormat.format(date).toString();
-            Weather weather = new Weather(formattedStr, Math.round(jsonTemperatureObj.getDouble(MAX)), Math.round(jsonTemperatureObj.getDouble(MIN)), jsonWeatherObj.getString(MAIN), jsonWeatherObj.getString(ICON_CODE));
-//            weatherForecast[i].setDay(formattedStr);
-//            weatherForecast[i].setTemperatureHi(Math.round(jsonTemperatureObj.getDouble(MAX)));
-//            weatherForecast[i].setTemperatureLo(Math.round(jsonTemperatureObj.getDouble(MIN)));
-//            weatherForecast[i].setDescription(jsonWeatherObj.getString(MAIN));
-//            weatherForecast[i].setIconUrl(jsonWeatherObj.getString(ICON_CODE));
+            Weather weather = new Weather( // calls constructor for model data Weather object
+                    formattedStr,
+                    Math.round(jsonTemperatureObj.getDouble(MAX)),
+                    Math.round(jsonTemperatureObj.getDouble(MIN)),
+                    jsonWeatherObj.getString(MAIN),
+                    jsonWeatherObj.getString(ICON_CODE)
+            );
             weatherForecast[i] = weather;
 
 

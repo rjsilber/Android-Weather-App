@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -64,7 +66,6 @@ public class WeatherActivity extends AppCompatActivity implements WeatherDataAsy
 
     private static long TIMEOUT_IN_MILLI = 10000; // 10 seconds
 
-//    final ProgressBar progBarView = (ProgressBar)findViewById(progressBar);
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -81,34 +82,40 @@ public class WeatherActivity extends AppCompatActivity implements WeatherDataAsy
     };
 
 
-
-//    WeatherDataAsyncTask mWeatherDataAsyncTask = new WeatherDataAsyncTask( new IAsyncTaskResponder() {
-//        @Override
-//        public void asyncTaskFinished(Weather[] weatherForecast) {
-//
-//        }
-//    }).execute(mLatitude, mLongitude);
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
 
         getTheLocation();
-
-
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        // Inflate the menu
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch(item.getItemId()){
+            case R.id.action_settings:  // when Settings option selected from menu
+                // code to start Settings Activity
+                Intent intent = new Intent(this, SettingsActivity.class); // intent to start activity
+                startActivity(intent); // start the SettingsActivity
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     protected void onStart(){
         super.onStart();
         // Bind the service at onStart()
-        Intent intent = new Intent(this, LocationDetector.class);
+        Intent intent = new Intent(this, LocationDetector.class); // creates the intent
         bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE); // uses the intent and service connection to bind activity to the service
-//        getTheLocation();
     }
 
 
@@ -138,46 +145,25 @@ public class WeatherActivity extends AppCompatActivity implements WeatherDataAsy
 
     private void getTheLocation(){
 
-//        final TextView latitudeView = (TextView)findViewById(latitude);
-//        final TextView longitudeView = (TextView)findViewById(longitude);
-//        final ProgressBar progBarView = (ProgressBar)findViewById(progressBar);
-//        final ListView listView = (ListView)findViewById(listview_weather_data);
-//        final TextView textView = (TextView)findViewById(list_item_weather_text_view);
-
         final Handler handler = new Handler();
-//        Runnable runnable;
         if(mLatitude == 0.0 && mLongitude == 0.0){ // gets location from LocationDetector
             handler.post(new Runnable() {
 
                 @Override
                 public void run() {
                     Log.d("getTheLocation()", "beginning of run()");
-//                double latitude = 0.0;
-//                double longitude = 0.0;
                     if(mLocationDetector != null){
                         mLocation = mLocationDetector.getLocationFromDetector();
                         Log.d("getTheLocation()", "mLocationDetector != null");
                         if(mLocation != null){
                             mLatitude = mLocation.getLatitude();
                             mLongitude = mLocation.getLongitude();
-//                            progBarView.setIndeterminate(false);
 
-//                        latitudeView.setText(Double.toString(latitude));
-//                        latitudeView.setVisibility(View.VISIBLE);
-//                        longitudeView.setText(Double.toString(longitude));
-//                        longitudeView.setVisibility(View.VISIBLE);
-//                        WeatherData weatherData = new WeatherData(WeatherActivity.this, latitude, longitude); // call to populate the Adapter with weather data
-
-
-//                        listView.setAdapter(weatherData.getMWeatherDataAdapter());
-//                        listView.setVisibility(View.VISIBLE);
-//                        textView.setVisibility(View.VISIBLE);
                             Log.d("getTheLocation()", "Runnable complete");
                             handler.removeCallbacks(this);
                             Log.d("getTheLocation()", "Testing if line of code accessible");
 
                             retrieveWeatherData();
-//                            progBarView.setVisibility(View.INVISIBLE);
                         }
                     }else{
                         Log.d("getTheLocation()", "else()");
@@ -211,9 +197,10 @@ public class WeatherActivity extends AppCompatActivity implements WeatherDataAsy
         progBarView.setIndeterminate(false);
         progBarView.setVisibility(View.INVISIBLE);
 
+
         for(i=0; i<mWeatherModel.length; i++){
             Log.d("asyncTaskFinished", mWeatherModel[i].toString());
         }
     }
-    
+
 }
