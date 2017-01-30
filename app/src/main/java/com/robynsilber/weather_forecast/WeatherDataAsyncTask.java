@@ -267,7 +267,6 @@ public class WeatherDataAsyncTask extends AsyncTask<String, Void, Weather[]>{
         // Declare and initialize String[] with total elements = number of days of forecast data
 //            String[] formattedData = new String[howManyDays]; // will be returned from this method
 
-        Weather[] weatherForecast = new Weather[howManyDays]; // model object
 
         // TODO: shared preferences for units
 
@@ -294,6 +293,9 @@ public class WeatherDataAsyncTask extends AsyncTask<String, Void, Weather[]>{
         // Construct a JSONArray by extracting the "list" element
         JSONArray jsonArray = jsonObject.getJSONArray(LIST);
 
+        Weather[] weatherForecast = new Weather[jsonArray.length()]; // model object
+
+
         // Each i-th position of the jsonArray represents a day's worth of weather data
         for(int i=0; i<jsonArray.length(); i++){
 
@@ -303,12 +305,14 @@ public class WeatherDataAsyncTask extends AsyncTask<String, Void, Weather[]>{
 
             long date = dateObj.setJulianDay(dayOneForecast + i);
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE MMM dd");
-
-            weatherForecast[i].setDay(simpleDateFormat.format(date));
-            weatherForecast[i].setTemperatureHi(Math.round(jsonTemperatureObj.getDouble(MAX)));
-            weatherForecast[i].setTemperatureLo(Math.round(jsonTemperatureObj.getDouble(MIN)));
-            weatherForecast[i].setDescription(jsonWeatherObj.getString(MAIN));
-            weatherForecast[i].setIconUrl(jsonWeatherObj.getString(ICON_CODE));
+            String formattedStr = simpleDateFormat.format(date).toString();
+            Weather weather = new Weather(formattedStr, Math.round(jsonTemperatureObj.getDouble(MAX)), Math.round(jsonTemperatureObj.getDouble(MIN)), jsonWeatherObj.getString(MAIN), jsonWeatherObj.getString(ICON_CODE));
+//            weatherForecast[i].setDay(formattedStr);
+//            weatherForecast[i].setTemperatureHi(Math.round(jsonTemperatureObj.getDouble(MAX)));
+//            weatherForecast[i].setTemperatureLo(Math.round(jsonTemperatureObj.getDouble(MIN)));
+//            weatherForecast[i].setDescription(jsonWeatherObj.getString(MAIN));
+//            weatherForecast[i].setIconUrl(jsonWeatherObj.getString(ICON_CODE));
+            weatherForecast[i] = weather;
 
 
         }

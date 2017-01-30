@@ -198,13 +198,12 @@ public class WeatherActivity extends AppCompatActivity implements WeatherDataAsy
         mWeatherDataAsyncTask.execute(Double.toString(mLatitude), Double.toString(mLongitude));
     }
 
-
     @Override
-    public void asyncTaskFinished() {
+    public void asyncTaskFinished(Weather[] weatherForecast) {
         final ProgressBar progBarView = (ProgressBar)findViewById(progressBar);
-        mWeatherModel = new Weather[mWeatherDataAsyncTask.weatherForecast.length];
+        mWeatherModel = new Weather[weatherForecast.length];
         int i = 0;
-        for(Weather w : mWeatherDataAsyncTask.weatherForecast){
+        for(Weather w : weatherForecast){
             mWeatherModel[i] = w;
             i++;
         }
@@ -216,4 +215,5 @@ public class WeatherActivity extends AppCompatActivity implements WeatherDataAsy
             Log.d("asyncTaskFinished", mWeatherModel[i].toString());
         }
     }
+    
 }
