@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="menu_options">
+        <item name="item_num_days_spinner"></item>
+        <item name="item_enter_zip"></item>
+        <item name="item_temp_units"></item>
+    </string-array>
+
+    <string-array name="pref_temp_units_labels_options">
+        <item>@string/pref_temp_units_label_fahr</item>
+        <item>@string/pref_temp_units_label_cels</item>
+    </string-array>
+
+    <string-array name="pref_temp_units_values">
+        <item>@string/pref_temp_units_value_fahr</item>
+        <item>@string/pref_temp_units_value_cels</item>
+    </string-array>
+
+</resources>

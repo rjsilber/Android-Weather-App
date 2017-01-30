@@ -55,18 +55,23 @@ import static com.robynsilber.weather_forecast.R.id.progressBar;
 
 public class WeatherActivity extends AppCompatActivity implements WeatherDataAsyncTask.IAsyncTaskResponder {
 
+    // WeatherActivity members
     private LocationDetector.LocationBinder mLocationBinder;
     private LocationDetector mLocationDetector;
-    private boolean isBoundToService = false;
     private static Location mLocation;
     private double mLatitude = 0.0;
     private double mLongitude = 0.0;
     private Weather[] mWeatherModel;
     private WeatherDataAsyncTask mWeatherDataAsyncTask;
 
+    // constants
     private static long TIMEOUT_IN_MILLI = 10000; // 10 seconds
 
+    // booleans
+    private boolean isBoundToService = false;
 
+
+    // Creates a new ServiceConnection; binds WeatherActivity to LocationDetector
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -82,14 +87,15 @@ public class WeatherActivity extends AppCompatActivity implements WeatherDataAsy
     };
 
 
+    // Callback gets called after AndroidManifest.xml launches WeatherActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_weather);
-
-        getTheLocation();
+        setContentView(R.layout.activity_weather); // sets activity_layout
+        getTheLocation(); // runs code for retrieving Location data from LocationDetector
     }
 
+    // Adds menu items to the Action Bar
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         // Inflate the menu
@@ -97,6 +103,7 @@ public class WeatherActivity extends AppCompatActivity implements WeatherDataAsy
         return super.onCreateOptionsMenu(menu);
     }
 
+    // Handles clicks to menu items in Action Bar
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
@@ -143,56 +150,66 @@ public class WeatherActivity extends AppCompatActivity implements WeatherDataAsy
 
 
 
+
+    /* getTheLocation() is responsible for determining when LocationDetector has located
+     * the device's location.  */
     private void getTheLocation(){
 
-        final Handler handler = new Handler();
+        final Handler handler = new Handler(); // declares a Handler
         if(mLatitude == 0.0 && mLongitude == 0.0){ // gets location from LocationDetector
-            handler.post(new Runnable() {
+            handler.post(new Runnable() { // creates a new Runnable
 
                 @Override
                 public void run() {
-                    Log.d("getTheLocation()", "beginning of run()");
+
                     if(mLocationDetector != null){
+                        // call LocationDetector interface method getLocationFromDetector()
                         mLocation = mLocationDetector.getLocationFromDetector();
-                        Log.d("getTheLocation()", "mLocationDetector != null");
-                        if(mLocation != null){
-                            mLatitude = mLocation.getLatitude();
-                            mLongitude = mLocation.getLongitude();
 
-                            Log.d("getTheLocation()", "Runnable complete");
-                            handler.removeCallbacks(this);
-                            Log.d("getTheLocation()", "Testing if line of code accessible");
+                        if(mLocation != null){ // Determines if Location data has been retrieved
+                            // Location data successfully retrieved; get lat and lon
+                            mLatitude = mLocation.getLatitude(); // sets lat
+                            mLongitude = mLocation.getLongitude(); // sets lon
 
+                            // Runnable has completed its purpose:
+                            handler.removeCallbacks(this); // removes the run() callback
+
+                            // Call method responsible for retrieving the model Weather data
                             retrieveWeatherData();
                         }
                     }else{
-                        Log.d("getTheLocation()", "else()");
-                        handler.postDelayed(this, TIMEOUT_IN_MILLI); // update the location every 10 seconds
+                        // Arbitrarily chose TIMEOUT_IN_MILLI to be 10 seconds (same amt as timeout)
+                        handler.postDelayed(this, TIMEOUT_IN_MILLI); // update loc every 10 secs
                     }
                 }
             });
         }
-
-        Log.d("getTheLocation()", "outside Runnable");
-
     }
 
 
     public void retrieveWeatherData(){
 
-        mWeatherDataAsyncTask = new WeatherDataAsyncTask(this);
+        mWeatherDataAsyncTask = new WeatherDataAsyncTask(this); // instantiates WeatherDataAsyncTask
+
+        // execute the WeatherDataAsyncTask; pass in the lat and lon
         mWeatherDataAsyncTask.execute(Double.toString(mLatitude), Double.toString(mLongitude));
     }
 
     @Override
     public void asyncTaskFinished(Weather[] weatherForecast) {
+        // get a reference to the progress bar
         final ProgressBar progBarView = (ProgressBar)findViewById(progressBar);
+
+        // initialize the array of Weather objects to be the length of the input arg array
         mWeatherModel = new Weather[weatherForecast.length];
+
         int i = 0;
-        for(Weather w : weatherForecast){
+        for(Weather w : weatherForecast){ // copy data from weatherForecast into mWeatherModel
             mWeatherModel[i] = w;
             i++;
         }
+
+        // Hide the progress bar
         progBarView.setIndeterminate(false);
         progBarView.setIndeterminate(false);
         progBarView.setVisibility(View.INVISIBLE);

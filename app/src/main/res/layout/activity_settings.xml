@@ -11,4 +11,12 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.robynsilber.weather_forecast.SettingsActivity">
 
+    <ListView
+        android:id="@+id/menu_list_options"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:entries="@array/menu_options">
+
+    </ListView>
+
 </RelativeLayout>
