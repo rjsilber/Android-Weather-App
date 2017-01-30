@@ -9,13 +9,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import static com.robynsilber.weather_forecast.R.id.list_item_weather_text_view;
-import static com.robynsilber.weather_forecast.R.id.listview_weather_data;
 import static com.robynsilber.weather_forecast.R.id.progressBar;
 
 /*  Command line recipe for Git:
@@ -54,14 +51,20 @@ import static com.robynsilber.weather_forecast.R.id.progressBar;
 *
 * */
 
-public class WeatherActivity extends AppCompatActivity {
+public class WeatherActivity extends AppCompatActivity implements WeatherDataAsyncTask.IAsyncTaskResponder {
 
     private LocationDetector.LocationBinder mLocationBinder;
     private LocationDetector mLocationDetector;
     private boolean isBoundToService = false;
     private static Location mLocation;
+    private double mLatitude = 0.0;
+    private double mLongitude = 0.0;
+    private Weather[] mWeatherModel;
+    private WeatherDataAsyncTask mWeatherDataAsyncTask;
 
     private static long TIMEOUT_IN_MILLI = 10000; // 10 seconds
+
+//    final ProgressBar progBarView = (ProgressBar)findViewById(progressBar);
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -78,12 +81,22 @@ public class WeatherActivity extends AppCompatActivity {
     };
 
 
+
+//    WeatherDataAsyncTask mWeatherDataAsyncTask = new WeatherDataAsyncTask( new IAsyncTaskResponder() {
+//        @Override
+//        public void asyncTaskFinished(Weather[] weatherForecast) {
+//
+//        }
+//    }).execute(mLatitude, mLongitude);
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
 
         getTheLocation();
+
 
     }
 
@@ -127,44 +140,80 @@ public class WeatherActivity extends AppCompatActivity {
 
 //        final TextView latitudeView = (TextView)findViewById(latitude);
 //        final TextView longitudeView = (TextView)findViewById(longitude);
-        final ProgressBar progBarView = (ProgressBar)findViewById(progressBar);
-        final ListView listView = (ListView)findViewById(listview_weather_data);
-        final TextView textView = (TextView)findViewById(list_item_weather_text_view);
+//        final ProgressBar progBarView = (ProgressBar)findViewById(progressBar);
+//        final ListView listView = (ListView)findViewById(listview_weather_data);
+//        final TextView textView = (TextView)findViewById(list_item_weather_text_view);
 
         final Handler handler = new Handler();
-        handler.post(new Runnable() {
+//        Runnable runnable;
+        if(mLatitude == 0.0 && mLongitude == 0.0){ // gets location from LocationDetector
+            handler.post(new Runnable() {
 
-            @Override
-            public void run() {
-                double latitude = 0.0;
-                double longitude = 0.0;
-                if(mLocationDetector != null){
-                    mLocation = mLocationDetector.getLocationFromDetector();
-
-                    if(mLocation != null){
-                        latitude = mLocation.getLatitude();
-                        longitude = mLocation.getLongitude();
-//                        progBarView.setIndeterminate(false);
+                @Override
+                public void run() {
+                    Log.d("getTheLocation()", "beginning of run()");
+//                double latitude = 0.0;
+//                double longitude = 0.0;
+                    if(mLocationDetector != null){
+                        mLocation = mLocationDetector.getLocationFromDetector();
+                        Log.d("getTheLocation()", "mLocationDetector != null");
+                        if(mLocation != null){
+                            mLatitude = mLocation.getLatitude();
+                            mLongitude = mLocation.getLongitude();
+//                            progBarView.setIndeterminate(false);
 
 //                        latitudeView.setText(Double.toString(latitude));
 //                        latitudeView.setVisibility(View.VISIBLE);
 //                        longitudeView.setText(Double.toString(longitude));
 //                        longitudeView.setVisibility(View.VISIBLE);
-                        WeatherData weatherData = new WeatherData(WeatherActivity.this, latitude, longitude); // call to populate the Adapter with weather data
-                        progBarView.setVisibility(View.INVISIBLE);
-                        listView.setAdapter(weatherData.getMWeatherDataAdapter());
-                        listView.setVisibility(View.VISIBLE);
-                        textView.setVisibility(View.VISIBLE);
+//                        WeatherData weatherData = new WeatherData(WeatherActivity.this, latitude, longitude); // call to populate the Adapter with weather data
 
-                        handler.removeCallbacks(this);
+
+//                        listView.setAdapter(weatherData.getMWeatherDataAdapter());
+//                        listView.setVisibility(View.VISIBLE);
+//                        textView.setVisibility(View.VISIBLE);
+                            Log.d("getTheLocation()", "Runnable complete");
+                            handler.removeCallbacks(this);
+                            Log.d("getTheLocation()", "Testing if line of code accessible");
+
+                            retrieveWeatherData();
+//                            progBarView.setVisibility(View.INVISIBLE);
+                        }
+                    }else{
+                        Log.d("getTheLocation()", "else()");
+                        handler.postDelayed(this, TIMEOUT_IN_MILLI); // update the location every 10 seconds
                     }
                 }
+            });
+        }
 
-                handler.postDelayed(this, TIMEOUT_IN_MILLI); // update the location every 10 seconds
-            }
-        });
+        Log.d("getTheLocation()", "outside Runnable");
 
     }
 
 
+    public void retrieveWeatherData(){
+
+        mWeatherDataAsyncTask = new WeatherDataAsyncTask(this);
+        mWeatherDataAsyncTask.execute(Double.toString(mLatitude), Double.toString(mLongitude));
+    }
+
+
+    @Override
+    public void asyncTaskFinished() {
+        final ProgressBar progBarView = (ProgressBar)findViewById(progressBar);
+        mWeatherModel = new Weather[mWeatherDataAsyncTask.weatherForecast.length];
+        int i = 0;
+        for(Weather w : mWeatherDataAsyncTask.weatherForecast){
+            mWeatherModel[i] = w;
+            i++;
+        }
+        progBarView.setIndeterminate(false);
+        progBarView.setIndeterminate(false);
+        progBarView.setVisibility(View.INVISIBLE);
+
+        for(i=0; i<mWeatherModel.length; i++){
+            Log.d("asyncTaskFinished", mWeatherModel[i].toString());
+        }
+    }
 }

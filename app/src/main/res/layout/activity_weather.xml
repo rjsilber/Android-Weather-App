@@ -19,19 +19,5 @@
         android:indeterminate="true"
         android:visibility="visible"/>
 
-    <ListView
-        android:id="@+id/listview_weather_data"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="?android:attr/listPreferredItemHeight"
-            android:gravity="center_vertical"
-            android:id="@+id/list_item_weather_text_view"
-            android:visibility="invisible"/>
-
-    </ListView>
 </RelativeLayout>
