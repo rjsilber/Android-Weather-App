@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:context="com.robynsilber.weather_forecast.WeatherActivity">
+
+    <ImageView
+        android:id="@+id/circleImageView"
+        android:contentDescription="@string/circle_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@android:color/holo_blue_dark"
+        android:background="@android:color/holo_blue_light"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        app:srcCompat="@drawable/bg_temperature"/>
+
+    <TextView
+        android:id="@+id/dayLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#ffffffff"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="@+id/circleImageView"
+        android:layout_alignParentStart="@+id/circleImageView"
+        android:textSize="15sp"
+        tools:text="Wednesday"
+        android:paddingLeft="8dp"/>
+
+    <TextView
+        android:id="@+id/temperatureLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_alignLeft="@+id/circleImageView"
+        android:layout_alignRight="@+id/circleImageView"
+        android:layout_alignEnd="@+id/circleImageView"
+        android:layout_alignStart="@+id/circleImageView"
+        android:layout_centerHorizontal="@+id/circleImageView"
+        android:layout_centerVertical="true"
+        tools:text="100"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/bg_temperature"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
+        android:id="@+id/iconImageView"/>
+
+    <TextView
+        android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/iconImageView"
+        android:layout_toStartOf="@+id/iconImageView"
+        android:layout_marginRight="17dp"
+        android:layout_marginEnd="17dp"
+        android:id="@+id/weatherDescrLabel"
+        tools:text="Snow storm"
+        android:textSize="10sp"
+        android:textColor="#ffffffff"/>
+
+
+</RelativeLayout>

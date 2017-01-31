@@ -13,9 +13,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
-import static com.robynsilber.weather_forecast.R.id.progressBar;
+import com.robynsilber.weather_forecast.adapters.WeatherAdapter;
+import com.robynsilber.weather_forecast.model.Weather;
 
 /*  Command line recipe for Git:
 *
@@ -25,6 +28,11 @@ import static com.robynsilber.weather_forecast.R.id.progressBar;
 *          git push
 *
 * */
+
+
+/*              Source for image:
+ *     bg_temperature.png is a white background circle image provided by treehouse tutorial
+ * */
 
 
 
@@ -55,6 +63,8 @@ import static com.robynsilber.weather_forecast.R.id.progressBar;
 
 public class WeatherActivity extends AppCompatActivity implements WeatherDataAsyncTask.IAsyncTaskResponder {
 
+    public static final String TAG = WeatherActivity.class.getSimpleName();
+
     // WeatherActivity members
     private LocationDetector.LocationBinder mLocationBinder;
     private LocationDetector mLocationDetector;
@@ -69,6 +79,25 @@ public class WeatherActivity extends AppCompatActivity implements WeatherDataAsy
 
     // booleans
     private boolean isBoundToService = false;
+
+    // Views
+//    private TextView mTemperatureLabel;
+//    private TextView mDayLabel;
+//    private TextView mWeatherDescrLabel;
+//    private ImageView mIconImageView;
+    private TextView mForecastHeader;
+    private ProgressBar mProgBarView;
+    private TextView mEmptyList;
+    private ListView mListView;
+    // Butterknife annotations
+//    @InjectView(R.id.dayLabel) TextView mDayLabel;
+//    @InjectView(R.id.temperatureLabel) TextView mTemperatureLabel;
+//    @InjectView(weatherDescrLabel) TextView mWeatherDescrLabel;
+//    @InjectView(R.id.iconImageView) ImageView mIconImageView;
+//    @InjectView(R.id.forecastHeader) TextView mForecastHeader;
+//    @InjectView(R.id.progressBar) ProgressBar mProgBarView;
+
+
 
 
     // Creates a new ServiceConnection; binds WeatherActivity to LocationDetector
@@ -92,7 +121,22 @@ public class WeatherActivity extends AppCompatActivity implements WeatherDataAsy
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather); // sets activity_layout
+
+
+        // initialize views
+        mProgBarView = (ProgressBar)findViewById(R.id.progressBar);
+        mForecastHeader = (TextView)findViewById(R.id.forecastHeader);
+        mEmptyList = (TextView)findViewById(R.id.emptyList);
+        mListView = (ListView)findViewById(R.id.listView);
+//        mTemperatureLabel = (TextView)findViewById(R.id.temperatureLabel);
+//        mDayLabel = (TextView)findViewById(R.id.dayLabel);
+//        mWeatherDescrLabel = (TextView)findViewById(R.id.weatherDescrLabel);
+//        mIconImageView = (ImageView)findViewById(R.id.iconImageView);
+
+
+
         getTheLocation(); // runs code for retrieving Location data from LocationDetector
+
     }
 
     // Adds menu items to the Action Bar
@@ -197,8 +241,6 @@ public class WeatherActivity extends AppCompatActivity implements WeatherDataAsy
 
     @Override
     public void asyncTaskFinished(Weather[] weatherForecast) {
-        // get a reference to the progress bar
-        final ProgressBar progBarView = (ProgressBar)findViewById(progressBar);
 
         // initialize the array of Weather objects to be the length of the input arg array
         mWeatherModel = new Weather[weatherForecast.length];
@@ -209,15 +251,36 @@ public class WeatherActivity extends AppCompatActivity implements WeatherDataAsy
             i++;
         }
 
-        // Hide the progress bar
-        progBarView.setIndeterminate(false);
-        progBarView.setIndeterminate(false);
-        progBarView.setVisibility(View.INVISIBLE);
-
 
         for(i=0; i<mWeatherModel.length; i++){
             Log.d("asyncTaskFinished", mWeatherModel[i].toString());
         }
+
+        updateUI(); // call to display list view data on screen
+
+    }
+
+    private void updateUI(){
+        // use--   android:id/empty   when no data to display (instead of android:id/list)
+
+        // Hide the progress bar
+        mProgBarView.setIndeterminate(false);
+        mProgBarView.setIndeterminate(false);
+        mProgBarView.setVisibility(View.INVISIBLE);
+
+
+        if(mWeatherModel.length == 0){
+            mEmptyList.setVisibility(View.VISIBLE);
+        }else{
+            mForecastHeader.setVisibility(View.VISIBLE);
+            // Create new WeatherAdapter
+            WeatherAdapter adapter = new WeatherAdapter(this, mWeatherModel);
+            mListView.setAdapter(adapter);
+        }
+
+
+
+
     }
 
 }

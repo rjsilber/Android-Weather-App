@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.text.format.Time;
 import android.util.Log;
 
+import com.robynsilber.weather_forecast.model.Weather;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
